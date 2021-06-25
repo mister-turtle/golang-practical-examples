@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"flag"
@@ -44,32 +45,49 @@ func main() {
 	// create a channel that we can send words from the wordlist to.
 	wordChan := make(chan string, *argThreads*2)
 
-	// here we use a wait group to track how many words have been added and read from the channel
-	// we also use an additional Add here, which corresponds to the wg.Done() after the wordlist has finished reading.
+	// we use an Add here, which corresponds to the wg.Done() after the wordlist has finished reading.
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	// spawn the goroutines for reading the wordlist, and hashing the words
-	go readWordList(wordChan, wordFile, wg)
+	// add one to the WaitGroup per goroutine running.
+	// this is removed from the WaitGroup when the goroutine exits.
+	go readWordList(wordChan, wordFile, wg, ctx)
 	for i := 0; i <= *argThreads; i++ {
-		go hashAndCompare(wordChan, *argHash, wg)
+		wg.Add(1)
+		go hashAndCompare(ctx, cancel, wordChan, *argHash, wg)
 	}
 
 	wg.Wait()
 	log.Println("Finished cracking.")
 }
 
-func readWordList(wordChan chan string, words io.Reader, wg *sync.WaitGroup) {
+func readWordList(wordChan chan string, words io.Reader, wg *sync.WaitGroup, ctx context.Context) {
+
+	defer func() {
+		wg.Done()
+		close(wordChan)
+	}()
+
 	scanner := bufio.NewScanner(words)
-	for scanner.Scan() {
-		wg.Add(1)
+
+scanloop:
+	for {
+		scanner.Scan()
 		wordChan <- scanner.Text()
+		select {
+		case <-ctx.Done():
+			break scanloop
+		}
 	}
-	close(wordChan)
-	wg.Done()
 }
 
-func hashAndCompare(wordChan chan string, target string, wg *sync.WaitGroup) {
+func hashAndCompare(ctx context.Context, cancel context.CancelFunc, wordChan chan string, target string, wg *sync.WaitGroup) {
+
+	// remove one from the WaitGroup when this goroutine finishes.
+	defer wg.Done()
 
 	// firstly take the hash byte string and convert it into a byteslice
 	targetBytes, err := hex.DecodeString(target)
@@ -77,13 +95,22 @@ func hashAndCompare(wordChan chan string, target string, wg *sync.WaitGroup) {
 		log.Fatalf("failed to get hex bytes from target hash: %s", err.Error())
 	}
 
-	for word := range wordChan {
-		h := sha256.New()
-		h.Write([]byte(word))
-		if bytes.Equal(h.Sum(nil), targetBytes) {
-			log.Printf("FOUND! %s was %x\n", word, h.Sum(nil))
+	// iterate over the channel until it is empty. If the channel is closed, the range will finish when there are no more items available.
+forchan:
+	for {
+		select {
+		case word, ok := <-wordChan:
+			if !ok {
+				break forchan
+			}
+			h := sha256.New()
+			h.Write([]byte(word))
+			if bytes.Equal(h.Sum(nil), targetBytes) {
+				cancel()
+				log.Printf("FOUND! %s was %x\n", word, h.Sum(nil))
+			}
+		case <-ctx.Done():
+			break forchan
 		}
-		log.Printf("Received word %s\n", word)
-		wg.Done()
 	}
 }
