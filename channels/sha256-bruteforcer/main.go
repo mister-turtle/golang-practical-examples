@@ -90,9 +90,7 @@ scanloop:
 	for {
 		if !scanner.Scan() {
 			if err := scanner.Err(); err != nil {
-				if err != io.EOF {
-					log.Fatalf("Failed to read word file: %s\n", err.Error())
-				}
+				log.Fatalf("Failed to read word file: %s\n", err.Error())
 			}
 			break scanloop
 		}
