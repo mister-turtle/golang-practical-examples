@@ -88,7 +88,14 @@ func readWordList(ctx context.Context, wordChan chan string, words io.Reader) {
 
 scanloop:
 	for {
-		scanner.Scan()
+		if !scanner.Scan() {
+			if err := scanner.Err(); err != nil {
+				if err != io.EOF {
+					log.Fatalf("Failed to read word file: %s\n", err.Error())
+				}
+			}
+			break scanloop
+		}
 
 		select {
 		case wordChan <- scanner.Text():
