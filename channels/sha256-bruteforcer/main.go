@@ -47,27 +47,40 @@ func main() {
 
 	// we use an Add here, which corresponds to the wg.Done() after the wordlist has finished reading.
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// spawn the goroutines for reading the wordlist, and hashing the words
 	// add one to the WaitGroup per goroutine running.
 	// this is removed from the WaitGroup when the goroutine exits.
-	go readWordList(wordChan, wordFile, wg, ctx)
+	wg.Add(1)
+	go func() {
+		readWordList(ctx, wordChan, wordFile)
+		wg.Done()
+	}()
+
+	found := make(chan string)
 	for i := 0; i <= *argThreads; i++ {
 		wg.Add(1)
-		go hashAndCompare(ctx, cancel, wordChan, *argHash, wg)
+		go func() {
+			defer wg.Done()
+			hashAndCompare(ctx, wordChan, *argHash, found)
+		}()
 	}
+
+	go func() {
+		result := <-found
+		log.Printf("Cracked: %s\n", result)
+		cancel()
+	}()
 
 	wg.Wait()
 	log.Println("Finished cracking.")
 }
 
-func readWordList(wordChan chan string, words io.Reader, wg *sync.WaitGroup, ctx context.Context) {
+func readWordList(ctx context.Context, wordChan chan string, words io.Reader) {
 
 	defer func() {
-		wg.Done()
 		close(wordChan)
 	}()
 
@@ -76,24 +89,25 @@ func readWordList(wordChan chan string, words io.Reader, wg *sync.WaitGroup, ctx
 scanloop:
 	for {
 		scanner.Scan()
-		wordChan <- scanner.Text()
+
 		select {
+		case wordChan <- scanner.Text():
 		case <-ctx.Done():
 			break scanloop
 		}
 	}
 }
 
-func hashAndCompare(ctx context.Context, cancel context.CancelFunc, wordChan chan string, target string, wg *sync.WaitGroup) {
-
-	// remove one from the WaitGroup when this goroutine finishes.
-	defer wg.Done()
+func hashAndCompare(ctx context.Context, wordChan chan string, target string, found chan string) {
 
 	// firstly take the hash byte string and convert it into a byteslice
 	targetBytes, err := hex.DecodeString(target)
 	if err != nil {
 		log.Fatalf("failed to get hex bytes from target hash: %s", err.Error())
 	}
+
+	// initalise a new hash container and utilise Reset() later to avoid a new instance each time.
+	h := sha256.New()
 
 	// iterate over the channel until it is empty. If the channel is closed, the range will finish when there are no more items available.
 forchan:
@@ -103,11 +117,10 @@ forchan:
 			if !ok {
 				break forchan
 			}
-			h := sha256.New()
+			h.Reset()
 			h.Write([]byte(word))
 			if bytes.Equal(h.Sum(nil), targetBytes) {
-				cancel()
-				log.Printf("FOUND! %s was %x\n", word, h.Sum(nil))
+				found <- word
 			}
 		case <-ctx.Done():
 			break forchan
