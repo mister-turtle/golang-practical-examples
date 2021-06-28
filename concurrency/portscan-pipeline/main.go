@@ -57,7 +57,11 @@ func main() {
 	log.Printf("Starting %d threads\n", *argThreads)
 	for i := 1; i <= *argThreads; i++ {
 		wg.Add(1)
-		go ScannerThread(i, &wg, portChan, resChan)
+		go func() {
+			ScannerThread(portChan, resChan)
+			wg.Done()
+
+		}()
 	}
 
 	// Spawn a go routine which will wait until all of the goroutines are closed (each one calls wg.Done() when it's finished) and then close the results channel.
@@ -74,9 +78,7 @@ func main() {
 	log.Println("Finished.")
 }
 
-func ScannerThread(num int, wg *sync.WaitGroup, ports chan Port, res chan Port) {
-
-	defer wg.Done()
+func ScannerThread(ports chan Port, res chan Port) {
 
 	for port := range ports {
 		target := fmt.Sprintf("%s:%d", port.Target, port.PortId)
