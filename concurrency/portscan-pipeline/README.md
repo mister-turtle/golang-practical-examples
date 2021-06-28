@@ -28,8 +28,9 @@ The default number of workerse is `5` but can be specified with `-t`
 
 ### Example
 
-$ time go run main.go -i 127.0.0.1 -s 1 -e 65535
 ```
+$ time go run main.go -i 127.0.0.1 -s 1 -e 65535
+
 Simple Concurrent TCP Port Scanner
 Starting 5 threads
 127.0.0.1        : 9999   - open
