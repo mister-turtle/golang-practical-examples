@@ -25,3 +25,20 @@ The program reads words from a new-line delimited wordlist specified with `-w`
 Worker go routines are started, default of `4` but can be specified by `-t`   
 Each word is sent to a channel read by workers that hashes and compare them to the target hash  
 Reading of the wordlist, and hashing attempts are stopped via context cancellation if a match is found.  
+
+### Example
+
+\$ printf "%s" "$( cat /tmp/sec100mil | tail -1 )" | sha256sum
+
+0e50525a6dd54aabe34f2fb129a1484961b0c450cdde781807cc9e5dabe5ac06  -
+
+\$ time oo run main.go -h 0e50525a6dd54aabe34f2fb129a1484961b0c450cdde781807cc9e5dabe5ac06 -w /tmp/sec100mil 
+```
+Simple Hash Brute Forcer
+Cracked: thiswasntherebefore
+Finished cracking.
+
+real    0m6.883s
+user    0m12.315s
+sys     0m1.519s
+```
