@@ -21,10 +21,10 @@ Usage of <utility>:
 
 ### Outline
 
-The program takes an IP address via the flag `-i`
-It can additionally take start and ending ports with `-i` and `-e`
-It will create a struct of each of these and pass them to a channel, which is read by multiple workers.
-The default number of workerse is `5` but can be specified with `-t`
+The program takes an IP address via the flag `-i`  
+It can additionally take start and ending ports with `-i` and `-e`  
+It will create a struct of each of these and pass them to a channel, which is read by multiple workers.  
+The default number of workerse is `5` but can be specified with `-t`  
 
 ### Example
 

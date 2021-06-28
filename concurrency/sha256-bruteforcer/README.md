@@ -20,8 +20,8 @@ Usage of <utility>:
 
 ### Outline
 
-The program takes the hash target via command line flag `-h` in hex encoded form
-The program reads words from a new-line delimited wordlist specified with `-w` 
-Worker go routines are started, default of `4` but can be specified by `-t` 
-Each word is sent to a channel read by workers that hashes and compare them to the target hash
-Reading of the wordlist, and hashing attempts are stopped via context cancellation if a match is found.
+The program takes the hash target via command line flag `-h` in hex encoded form  
+The program reads words from a new-line delimited wordlist specified with `-w`   
+Worker go routines are started, default of `4` but can be specified by `-t`   
+Each word is sent to a channel read by workers that hashes and compare them to the target hash  
+Reading of the wordlist, and hashing attempts are stopped via context cancellation if a match is found.  
