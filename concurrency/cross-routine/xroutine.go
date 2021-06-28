@@ -55,7 +55,10 @@ func main() {
 	// this means the channel needs to be empty or sending to the channel will block.
 	for i := 0; i < 10; i++ {
 		log.Println("\n -----Sending new values-----")
+
+		// we sleep here just so it doesn't complete instantly
 		time.Sleep(1 * time.Second)
+
 		intChan <- rand.Intn(600-1) + 1
 	}
 
