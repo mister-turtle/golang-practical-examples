@@ -27,13 +27,13 @@ Each word is sent to a channel read by workers that hashes and compare them to t
 Reading of the wordlist, and hashing attempts are stopped via context cancellation if a match is found.  
 
 ### Example
-
-\$ printf "%s" "$( cat /tmp/sec100mil | tail -1 )" | sha256sum
-
-0e50525a6dd54aabe34f2fb129a1484961b0c450cdde781807cc9e5dabe5ac06  -
-
-\$ time oo run main.go -h 0e50525a6dd54aabe34f2fb129a1484961b0c450cdde781807cc9e5dabe5ac06 -w /tmp/sec100mil 
 ```
+$ printf "%s" "$( cat /tmp/sec100mil | tail -1 )" | sha256sum
+0e50525a6dd54aabe34f2fb129a1484961b0c450cdde781807cc9e5dabe5ac06  -
+```
+```
+$ time go run main.go -h 0e50525a6dd54aabe34f2fb129a1484961b0c450cdde781807cc9e5dabe5ac06 -w /tmp/sec100mil 
+
 Simple Hash Brute Forcer
 Cracked: thiswasntherebefore
 Finished cracking.
