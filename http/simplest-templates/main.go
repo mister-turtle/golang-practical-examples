@@ -18,7 +18,7 @@ const indexTemplate = `
 <body>
 	<h1>Hello, {{ .IP }}</h1>
 	<br>
-	<p>The current server time is {{ .Time }}
+	<p>The current server time is {{ .Time }}</p>
 </body>
 </html>
 `
