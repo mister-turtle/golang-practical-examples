@@ -68,5 +68,7 @@ func main() {
 
 	// assemble the address from the command line args and start our server
 	address := fmt.Sprintf("%s:%d", *argAddress, *argPort)
+	log.Printf("Listening on %s\n", address)
+
 	log.Fatal(http.ListenAndServe(address, nil))
 }
