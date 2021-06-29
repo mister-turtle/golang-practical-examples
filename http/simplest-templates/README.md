@@ -10,7 +10,7 @@ We then make use of the `io.Writer` interface and pass the `http.ResponseWriter`
 ```
 go run main.go
 
-Usage of /tmp/go-build2468329434/b001/exe/main:
+Usage of <utility>:
   -l string
         IP address to listen on (default "127.0.0.1")
   -p int
