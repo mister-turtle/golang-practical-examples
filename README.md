@@ -14,7 +14,7 @@ Name | Description
 ## HTTP Examples
 Name | Description
 -----|------------
-[simplest-server](/http/simplest-server) | Simple HTTP server using the stdlib net/http package using custom headers, cookies, and redirects
+[simplest-server](/http/simplest-server) | HTTP server using stdlib net/http package with custom headers, cookies, and redirects
 [simplest-templates](/http/simplest-templates) | Easy introduction to templates using the stdlib
 
 ## Interface Examples
