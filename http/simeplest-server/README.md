@@ -1,4 +1,4 @@
-# SHA256 Bruteforcer
+# Simplest HTTP Server
 
 This example uses the standard library to host a simple HTTP server. The listen address and port can be changed via `-p` and `-l`. There are a few routes designed to show using `http.ResponseWriter` including setting cookies, headers, and using redirects.
 
