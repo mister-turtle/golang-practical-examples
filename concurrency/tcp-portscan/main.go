@@ -36,42 +36,41 @@ func main() {
 	}
 
 	// Create a channel which will take one port item including the target and port number
-	portChan := make(chan Port)
+	ports := make(chan Port)
 
 	// Start populating this channel with the port range in a go routine, so that the rest of the application can continue.
 	go func() {
 		for i := *argPortStart; i <= *argPortEnd; i++ {
-			portChan <- Port{
+			ports <- Port{
 				Target: *argTarget,
 				PortId: i,
 			}
 		}
 		// Once all the ports have been put onto the channel, close the channel so that the scanner routines can finish their for-loop and stop.
-		close(portChan)
+		close(ports)
 	}()
 
 	// Create a waitgroup to use in the scanning go routines. This will allow us to wait and close down the results channel later on. This will have the effect of
 	// letting the main thread which is looping over the results channel exit gracefully.
 	var wg sync.WaitGroup
-	resChan := make(chan Port)
+	results := make(chan Port)
 	log.Printf("Starting %d threads\n", *argThreads)
 	for i := 1; i <= *argThreads; i++ {
 		wg.Add(1)
 		go func() {
-			ScannerThread(portChan, resChan)
-			wg.Done()
-
+			defer wg.Done()
+			ScannerThread(ports, results)
 		}()
 	}
 
 	// Spawn a go routine which will wait until all of the goroutines are closed (each one calls wg.Done() when it's finished) and then close the results channel.
 	go func() {
 		wg.Wait()
-		close(resChan)
+		close(results)
 	}()
 
-	// Loop around the results channel priting out all the of the results. This range will end when the resChan is closed by the go routine directly above.
-	for res := range resChan {
+	// Loop around the results channel priting out all the of the results. This range will end when the results is closed by the go routine directly above.
+	for res := range results {
 		log.Printf("%-16s : %-6d - %s\n", res.Target, res.PortId, res.Status)
 	}
 

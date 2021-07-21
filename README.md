@@ -8,7 +8,7 @@ This is a basic repository where I put practical examples that demonstate core l
 Name | Description
 -----|-----------
 [cross-routine](/concurrency/cross-routine) | Number counter that shares channels across goroutines
-[portscan-pipeline](/concurrency/portscan-pipeline) | TCP port scanner using fan-out pattern.
+[portscan-pipeline](/concurrency/tcp-portscan) | TCP port scanner using fan-out pattern.
 [sha256-bruteforcer](/concurrency/sha256-bruteforcer) | SHA256 brute forcer using fan-out pattern, and context cancellation
 
 ## HTTP Examples
