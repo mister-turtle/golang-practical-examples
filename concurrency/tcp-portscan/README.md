@@ -1,4 +1,4 @@
-# Portscan Pipeline
+# Portscan Worker-Pool
 
 This is a quick example to show using channels and waitgroups in a fan-out pattern.
 
