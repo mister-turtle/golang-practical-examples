@@ -32,7 +32,6 @@ type HttpTask struct {
 
 // but we still implement Run() so that it can be used by something expecting a TaskRunner
 func (h HttpTask) Run() error {
-	fmt.Printf("Performing http action %s on %s expecting %d\n", h.Method, h.URL, h.ExpectedStatus)
 	return fmt.Errorf("Querying %s, expecting status %d, got %d\n", h.URL, h.ExpectedStatus, 302)
 }
 
