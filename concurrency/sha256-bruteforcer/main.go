@@ -103,8 +103,6 @@ func readWordList(ctx context.Context, wordChan chan string, words io.Reader) {
 	// an *os.File implements the io.Reader interface so we can pass it in directly.
 	scanner := bufio.NewScanner(words)
 
-	// this is a loop tag, used so we can break out of a nested loop.
-scanloop:
 	for {
 		if !scanner.Scan() {
 
@@ -115,7 +113,7 @@ scanloop:
 				log.Fatalf("Failed to read word file: %s\n", err.Error())
 			}
 			// this is likely EOF (end of file)
-			break scanloop
+			return
 		}
 
 		// select will choose between reading from scanner.Text() and placing on the word channel, or if available the context.Done.
@@ -124,7 +122,7 @@ scanloop:
 		select {
 		case wordChan <- scanner.Text():
 		case <-ctx.Done():
-			break scanloop
+			return
 		}
 	}
 }
@@ -142,7 +140,6 @@ func hashAndCompare(ctx context.Context, wordChan chan string, target string, fo
 
 	// iterate over the channel until it is empty. If the channel is closed, the range will finish when there are no more items available.
 	// this is the same method as the readWordList function
-forchan:
 	for {
 		select {
 
@@ -151,7 +148,7 @@ forchan:
 
 			// if !ok, eg invert the ok boolean, then the channel was closed
 			if !ok {
-				break forchan
+				return
 			}
 
 			// reset the hash container and write the bytes to it.
@@ -165,7 +162,7 @@ forchan:
 			}
 
 		case <-ctx.Done():
-			break forchan
+			return
 		}
 	}
 }
