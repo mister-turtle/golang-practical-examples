@@ -1,0 +1,29 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #001f3f; /* Dark blue background */
+    color: white;
+}
+
+nav {
+    background-color: #004080; /* Lighter blue */
+    padding: 1em;
+}
+
+nav a {
+    color: white;
+    margin: 0 1em;
+    text-decoration: none;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+h1 {
+    color: #7FDBFF; /* Even lighter blue for headings */
+}
+
+.container {
+    padding: 2em;
+}

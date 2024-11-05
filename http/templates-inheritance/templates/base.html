@@ -1,0 +1,23 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{block "title" .}}Default Title{{end}}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Navigation bar -->
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About Us</a>
+        <a href="/services">Services</a>
+        <a href="/contact">Contact</a>
+    </nav>
+
+    <!-- Page content -->
+    <div class="container">
+        {{block "content" .}}{{end}}
+    </div>
+</body>
+</html>
+{{end}}
